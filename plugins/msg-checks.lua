@@ -18,95 +18,85 @@ local lang = redis:get(hash)
       end
    end
 end
-    if data[tostring(chat)] and data[tostring(chat)]['mutes'] then
-		mutes = data[tostring(chat)]['mutes']
-	else
-		return
-	end
-	if mutes.mute_all then
-		mute_all = mutes.mute_all
-	else
-		mute_all = 'no'
-	end
-	if mutes.mute_gif then
-		mute_gif = mutes.mute_gif
-	else
-		mute_gif = 'no'
-	end
-   if mutes.mute_photo then
-		mute_photo = mutes.mute_photo
-	else
-		mute_photo = 'no'
-	end
-	if mutes.mute_sticker then
-		mute_sticker = mutes.mute_sticker
-	else
-		mute_sticker = 'no'
-	end
-	if mutes.mute_contact then
-		mute_contact = mutes.mute_contact
-	else
-		mute_contact = 'no'
-	end
-	if mutes.mute_inline then
-		mute_inline = mutes.mute_inline
-	else
-		mute_inline = 'no'
-	end
-	if mutes.mute_game then
-		mute_game = mutes.mute_game
-	else
-		mute_game = 'no'
-	end
-	if mutes.mute_text then
-		mute_text = mutes.mute_text
-	else
-		mute_text = 'no'
-	end
-	if mutes.mute_keyboard then
-		mute_keyboard = mutes.mute_keyboard
-	else
-		mute_keyboard = 'no'
-	end
-	if mutes.mute_forward then
-		mute_forward = mutes.mute_forward
-	else
-		mute_forward = 'no'
-	end
-	if mutes.mute_location then
-		mute_location = mutes.mute_location
-	else
-		mute_location = 'no'
-	end
-   if mutes.mute_document then
-		mute_document = mutes.mute_document
-	else
-		mute_document = 'no'
-	end
-	if mutes.mute_voice then
-		mute_voice = mutes.mute_voice
-	else
-		mute_voice = 'no'
-	end
-	if mutes.mute_audio then
-		mute_audio = mutes.mute_audio
-	else
-		mute_audio = 'no'
-	end
-	if mutes.mute_video then
-		mute_video = mutes.mute_video
-	else
-		mute_video = 'no'
-	end
-	if mutes.mute_tgservice then
-		mute_tgservice = mutes.mute_tgservice
-	else
-		mute_tgservice = 'no'
-	end
-	if data[tostring(chat)] and data[tostring(chat)]['settings'] then
+    if data[tostring(chat)] and data[tostring(chat)]['settings'] then
 		settings = data[tostring(chat)]['settings']
 	else
 		return
+	end
+	if settings.mute_all then
+		mute_all = settings.mute_all
+	else
+		mute_all = 'no'
+	end
+if settings.mute_gif then
+		mute_gif = settings.mute_gif
+	else
+		mute_gif = 'no'
+	end
+   if settings.mute_photo then
+		mute_photo = settings.mute_photo
+	else
+		mute_photo = 'no'
+	end
+	if settings.mute_sticker then
+		mute_sticker = settings.mute_sticker
+	else
+		mute_sticker = 'no'
+	end
+	if settings.mute_contact then
+		mute_contact = settings.mute_contact
+	else
+		mute_contact = 'no'
+	end
+	if settings.mute_inline then
+		mute_inline = settings.mute_inline
+	else
+		mute_inline = 'no'
+	end
+	if settings.mute_game then
+		mute_game = settings.mute_game
+	else
+		mute_game = 'no'
+	end
+	if settings.mute_text then
+		mute_text = settings.mute_text
+	else
+		mute_text = 'no'
+	end
+	if settings.mute_forward then
+		mute_forward = settings.mute_forward
+	else
+		mute_forward = 'no'
+	end
+	if settings.mute_location then
+		mute_location = settings.mute_location
+	else
+		mute_location = 'no'
+	end
+   if settings.mute_document then
+		mute_document = settings.mute_document
+	else
+		mute_document = 'no'
+	end
+	if settings.mute_voice then
+		mute_voice = settings.mute_voice
+	else
+		mute_voice = 'no'
+	end
+	if settings.mute_audio then
+		mute_audio = settings.mute_audio
+	else
+		mute_audio = 'no'
+	end
+	if settings.mute_video then
+		mute_video = settings.mute_video
+	else
+		mute_video = 'no'
+	end
+	if settings.mute_tgservice then
+		mute_tgservice = settings.mute_tgservice
+	else
+		mute_tgservice = 'no'
 	end
 	if settings.lock_link then
 		lock_link = settings.lock_link
@@ -118,6 +108,11 @@ end
 	else
 		lock_tag = 'no'
 	end
+	if settings.lock_emoji then
+		lock_emoji = settings.lock_emoji
+	else
+		lock_emoji = 'no'
+	end
 	if settings.lock_pin then
 		lock_pin = settings.lock_pin
 	else
@@ -127,6 +122,11 @@ end
 		lock_arabic = settings.lock_arabic
 	else
 		lock_arabic = 'no'
+	end
+	if settings.lock_gmail then
+		lock_gmail = settings.lock_gmail
+	else
+		lock_gmail = 'no'
 	end
 	if settings.lock_mention then
 		lock_mention = settings.lock_mention
@@ -303,6 +303,22 @@ if tag_caption and lock_tag == "yes" then
 kick_user(user, chat)
    end
 end
+local gmail_caption = msg.media.caption:match("gmail")
+if gmail_caption and lock_gmail == "yes" then
+ if is_channel then
+ del_msg(chat, tonumber(msg.id))
+  elseif is_chat then
+kick_user(user, chat)
+   end
+end
+local emoji_caption = msg.media.caption:match("[😀😬😁😂😃😄😅☺️🙃🙂😊😉😇😆😋😌😍😘😗😙😚🤗😎🤓🤑😛😝😜😏😶😐😑😒🙄🤔😕😔😡😠😟😞😳🙁☹️😣😖😫😩😤😧😦😯😰😨😱😮😢😥😪😓😭😵😲💩💤😴🤕🤒😷🤐😈👿👹👺💀👻👽😽😼😻😹😸😺🤖🙀😿😾🙌🏻👏🏻👋🏻👍🏻👎🏻👊🏻✊🏻✌🏻👌🏻✋🏻👐🏻💪🏻🙏🏻☝🏻️👆🏻👇🏻👈🏻👉🏻🖕🏻🖐🏻🤘🏻🖖🏻✍🏻💅🏻👄👅👂🏻👃🏻👁👀👤👥👱🏻👩🏻👨🏻👧🏻👦🏻👶🏻🗣👴🏻👵🏻👲🏻🏃🏻🚶🏻💑👩‍❤️‍👩👨‍❤️‍👨💏👩‍❤️‍💋‍👩👨‍❤️‍💋‍👨👪👩‍👩‍👧‍👦👩‍👩‍👧👩‍👩‍👦👨‍👩‍👧‍👧👨‍👩‍👦‍👦👨‍👩‍👧‍👦👨‍👩‍👧👩‍👩‍👦‍👦👩‍👩‍👧‍👧👨‍👨‍👦👨‍👨‍👧👨‍👨‍👧‍👦👨‍👨‍👦‍👦👨‍👨‍👧‍👧👘👙👗👔👖👕👚💄💋👣👠👡👢👞🎒⛑👑🎓🎩👒👟👝👛👜💼👓🕶💍🌂🐶🐱🐭🐹🐰🐻🐼🐸🐽🐷🐮🦁🐯🐨🐙🐵🙈🙉🙊🐒🐔🐗🐺🐥🐣🐤🐦🐧🐴🦄🐝🐛🐌🐞🐜🕷🦂🦀🐍🐢🐠🐟🐅🐆🐊🐋🐬🐡🐃🐂🐄🐪🐫🐘🐐🐓🐁🐀🐖🐎🐑🐏🦃🕊🐕]")
+if emoji_caption and lock_emoji == "yes" then
+ if is_channel then
+ del_msg(chat, tonumber(msg.id))
+  elseif is_chat then
+kick_user(user, chat)
+   end
+end
 if is_filter(msg, msg.media.caption) then
  if is_channel then
  del_msg(chat, tonumber(msg.id))
@@ -342,6 +358,22 @@ kick_user(user, chat)
 end
 local tag_msg = msg.text:match("@") or msg.text:match("#")
 if tag_msg and lock_tag == "yes" then
+ if is_channel then
+ del_msg(chat, tonumber(msg.id))
+  elseif is_chat then
+kick_user(user, chat)
+   end
+end
+local gmail_msg = msg.text:match("gmail")
+if gmail_msg and lock_gmail == "yes" then
+ if is_channel then
+ del_msg(chat, tonumber(msg.id))
+  elseif is_chat then
+kick_user(user, chat)
+   end
+end
+local emoji_msg = msg.text:match("[😀😬😁😂😃😄😅☺️🙃🙂😊😉😇😆😋😌😍😘😗😙😚🤗😎🤓🤑😛😝😜😏😶😐😑😒🙄🤔😕😔😡😠😟😞😳🙁☹️😣😖😫😩😤😧😦😯😰😨😱😮😢😥😪😓😭😵😲💩💤😴🤕🤒😷🤐😈👿👹👺💀👻👽😽😼😻😹😸😺🤖🙀😿😾🙌🏻👏🏻👋🏻👍🏻👎🏻👊🏻✊🏻✌🏻👌🏻✋🏻👐🏻💪🏻🙏🏻☝🏻️👆🏻👇🏻👈🏻👉🏻🖕🏻🖐🏻🤘🏻🖖🏻✍🏻💅🏻👄👅👂🏻👃🏻👁👀👤👥👱🏻👩🏻👨🏻👧🏻👦🏻👶🏻🗣👴🏻👵🏻👲🏻🏃🏻🚶🏻💑👩‍❤️‍👩👨‍❤️‍👨💏👩‍❤️‍💋‍👩👨‍❤️‍💋‍👨👪👩‍👩‍👧‍👦👩‍👩‍👧👩‍👩‍👦👨‍👩‍👧‍👧👨‍👩‍👦‍👦👨‍👩‍👧‍👦👨‍👩‍👧👩‍👩‍👦‍👦👩‍👩‍👧‍👧👨‍👨‍👦👨‍👨‍👧👨‍👨‍👧‍👦👨‍👨‍👦‍👦👨‍👨‍👧‍👧👘👙👗👔👖👕👚💄💋👣👠👡👢👞🎒⛑👑🎓🎩👒👟👝👛👜💼👓🕶💍🌂🐶🐱🐭🐹🐰🐻🐼🐸🐽🐷🐮🦁🐯🐨🐙🐵🙈🙉🙊🐒🐔🐗🐺🐥🐣🐤🐦🐧🐴🦄🐝🐛🐌🐞🐜🕷🦂🦀🐍🐢🐠🐟🐅🐆🐊🐋🐬🐡🐃🐂🐄🐪🐫🐘🐐🐓🐁🐀🐖🐎🐑🐏🦃🕊🐕]") 
+if emoji_msg and lock_emoji == "yes" then
  if is_channel then
  del_msg(chat, tonumber(msg.id))
   elseif is_chat then
