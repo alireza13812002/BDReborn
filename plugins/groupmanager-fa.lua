@@ -50,6 +50,7 @@ end
                   mute_all = 'no',
 				  lock_emoji = 'no',
 				  lock_gmail = 'no',
+				  lock_views = 'no'
           }
       }
   save_data(_config.moderation.data, data)
@@ -941,6 +942,63 @@ end
 end
 end
 
+---------------Lock veiws--------------
+local function lock_views(msg, data, target)
+local hash = "gp_lang:"..msg.chat_id_
+local lang = redis:get(hash)
+if not is_mod(msg) then
+if not lang then
+ return "_You're Not_ *Moderator*"
+else
+ return "شما مدیر گروه نمیباشید"
+end
+end
+
+local lock_views = data[tostring(target)]["settings"]["lock_views"] 
+if lock_views == "yes" then
+if not lang then
+ return "🔒*veiws* _Posting Is Already Locked_🔒"
+elseif lang then
+ return "🔒ارسال سین ممنوع شده بود🔒"
+end
+else
+data[tostring(target)]["settings"]["lock_views"] = "yes"
+save_data(_config.moderation.data, data) 
+if not lang then
+ return "🔒*veiws* _Posting Has Been Locked_🔒"
+else
+ return "🔒ارسال سین ممنوع گشت🔒"
+end
+end
+end
+
+local function unlock_views(msg, data, target)
+local hash = "gp_lang:"..msg.chat_id_
+local lang = redis:get(hash)
+ if not is_mod(msg) then
+if not lang then
+return "_You're Not_ *Moderator*"
+else
+return "شما مدیر گروه نمیباشید"
+end
+end 
+
+local lock_views = data[tostring(target)]["settings"]["lock_views"]
+ if lock_views == "no" then
+if not lang then
+return "🔓*veiws* _Posting Is Not Locked_🔓" 
+elseif lang then
+return "🔓ارسال سین قفل نی🔓"
+end
+else 
+data[tostring(target)]["settings"]["lock_views"] = "no" save_data(_config.moderation.data, data) 
+if not lang then
+return "🔓*veiws* _Posting Has Been Unlocked_🔓" 
+else
+return "🔓سین آزاد شد🔓"
+end
+end
+end
 ---------------Lock gmail-------------------
  local function lock_gmail(msg, data, target) 
  local hash = "gp_lang:"..msg.chat_id_ 
@@ -1412,6 +1470,12 @@ end
 end
 
 if data[tostring(target)]["settings"] then		
+if not data[tostring(target)]["settings"]["lock_views"] then			
+data[tostring(target)]["settings"]["lock_views"] = "no"		
+end
+end
+
+if data[tostring(target)]["settings"] then		
 if not data[tostring(target)]["settings"]["lock_gmail"] then			
 data[tostring(target)]["settings"]["lock_gmail"] = "no"		
 end
@@ -1543,10 +1607,10 @@ local expiretime = redis:hget('expiretime', msg.chat_id_)
 
 if not lang then
 local settings = data[tostring(target)]["settings"] 
- text = "🔰*Group Settings*🔰\n\n🔐_Lock edit :_ *"..settings.lock_edit.."*\n🔐_Lock links :_ *"..settings.lock_link.."*\n🔐_Lock fosh :_ *"..settings.lock_fosh.."*\n🔐_Lock gmail* :_ *"..settings.lock_gmail.."*\n🔐_Lock tags :_ *"..settings.lock_tag.."*\n🔐_Lock emoji :_ *"..settings.lock_emoji.."*\n🔐_Lock Persian* :_ *"..settings.lock_arabic.."*\n🔐_Lock flood :_ *"..settings.flood.."*\n🔐_Lock spam :_ *"..settings.lock_spam.."*\n🔐_Lock mention :_ *"..settings.lock_mention.."*\n🔐_Lock webpage :_ *"..settings.lock_webpage.."*\n🔐_Lock markdown :_ *"..settings.lock_markdown.."*\n🔐_Bots protection :_ *"..settings.lock_bots.."*\n🔐_Flood sensitivity :_ *"..NUM_MSG_MAX.."*\n✋_welcome :_ *"..settings.welcome.."*\n\n 🔊Group Mute List 🔊 \n\n🔇_Mute all : _ *"..settings.mute_all.."*\n🔇_Mute gif :_ *"..settings.mute_gif.."*\n🔇_Mute text :_ *"..settings.mute_text.."*\n🔇_Mute inline :_ *"..settings.mute_inline.."*\n🔇_Mute game :_ *"..settings.mute_game.."*\n🔇_Mute photo :_ *"..settings.mute_photo.."*\n🔇_Mute video :_ *"..settings.mute_video.."*\n🔇_Mute audio :_ *"..settings.mute_audio.."*\n🔇_Mute voice :_ *"..settings.mute_voice.."*\n🔇_Mute sticker :_ *"..settings.mute_sticker.."*\n🔇_Mute contact :_ *"..settings.mute_contact.."*\n🔇_Mute forward :_ *"..settings.mute_forward.."*\n🔇_Mute location :_ *"..settings.mute_location.."*\n🔇_Mute document :_ *"..settings.mute_document.."*\n🔇_Mute TgService :_ *"..settings.mute_tgservice.."*\n*__________________*\n⏱_expire time :_ *"..expire.."*\n*____________________*\n*Language* : *EN*"
+ text = "🔰*Group Settings*🔰\n\n🔐_Lock edit :_ *"..settings.lock_edit.."*\n🛡_Lock links :_ *"..settings.lock_link.."*\n👊_Lock fosh :_ *"..settings.lock_fosh.."*\n👁_Lock veiws** :_ *"..settings.lock_views.."*\n🔐_Lock gmail* :_ *"..settings.lock_gmail.."*\n#️⃣_Lock tags :_ *"..settings.lock_tag.."*\n😐_Lock emoji :_ *"..settings.lock_emoji.."*\n🇮🇷_Lock Persian* :_ *"..settings.lock_arabic.."*\n🚔_Lock flood :_ *"..settings.flood.."*\n🔐_Lock spam :_ *"..settings.lock_spam.."*\n🔐_Lock mention :_ *"..settings.lock_mention.."*\n🔐_Lock webpage :_ *"..settings.lock_webpage.."*\n🔐_Lock markdown :_ *"..settings.lock_markdown.."*\n🤖_Bots protection :_ *"..settings.lock_bots.."*\n🔐_Flood sensitivity :_ *"..NUM_MSG_MAX.."*\n✋_welcome :_ *"..settings.welcome.."*\n\n 🔊Group Mute List 🔊 \n\n🛌_Mute all : _ *"..settings.mute_all.."*\n🎭_Mute gif :_ *"..settings.mute_gif.."*\n✍️_Mute text :_ *"..settings.mute_text.."*\n🔇_Mute inline :_ *"..settings.mute_inline.."*\n🕹_Mute game :_ *"..settings.mute_game.."*\n🏞_Mute photo :_ *"..settings.mute_photo.."*\n🎬_Mute video :_ *"..settings.mute_video.."*\n🎼_Mute audio :_ *"..settings.mute_audio.."*\n🗣_Mute voice :_ *"..settings.mute_voice.."*\n🔇_Mute sticker :_ *"..settings.mute_sticker.."*\n👷‍♀️_Mute contact :_ *"..settings.mute_contact.."*\n🔇_Mute forward :_ *"..settings.mute_forward.."*\n🌏_Mute location :_ *"..settings.mute_location.."*\n🔇_Mute document :_ *"..settings.mute_document.."*\n🔇_Mute TgService :_ *"..settings.mute_tgservice.."*\n*__________________*\n⏱_expire time :_ *"..expire.."*\n*____________________*\n*Language* : *EN*"
 else
 local settings = data[tostring(target)]["settings"] 
- text = "🔰*تنظیمات گروه*🔰\n\n🔐_قفل ویرایش پیام :_ *"..settings.lock_edit.."*\n🔐_قفل لینک :_ *"..settings.lock_link.."*\n🔐_قفل فحش :_ *"..settings.lock_fosh.."*\n🔐_قفل جیمیل* :_ *"..settings.lock_gmail.."*\n🔐_قفل تگ :_ *"..settings.lock_tag.."*\n🔐_قفل شکلک :_ *"..settings.lock_emoji.."*\n🔐_قفل فارسی* :_ *"..settings.lock_arabic.."*\n🔐_قفل پیام مکرر :_ *"..settings.flood.."*\n🔐_قفل هرزنامه :_ *"..settings.lock_spam.."*\n🔐_قفل فراخوانی :_ *"..settings.lock_mention.."*\n🔐_قفل صفحات وب :_ *"..settings.lock_webpage.."*\n🔐_قفل فونت :_ *"..settings.lock_markdown.."*\n🔐_محافظت در برابر ربات ها :_ *"..settings.lock_bots.."*\n🔐_حداکثر پیام مکرر :_ *"..NUM_MSG_MAX.."*\n✋_پیام خوش آمد گویی :_ *"..settings.welcome.."*\n\n 🔊لیست ممنوعیت ها 🔊  \n\n🔇_ممنوع کردن همه : _ *"..settings.mute_all.."*\n🔇_ممنوع کردن تصاویر متحرک :_ *"..settings.mute_gif.."*\n🔇_ممنوع کردن  متن :_ *"..settings.mute_text.."*\n🔇_تبلیغات شیشه ای ممنوع :_ *"..settings.mute_inline.."*\n🔇_ممنوع کردن بازی  :_ *"..settings.mute_game.."*\n🔇_ممنوع کردن عکس :_ *"..settings.mute_photo.."*\n🔇_ممنوع کردن فیلم :_ *"..settings.mute_video.."*\n🔇_ممنوع کردن آهنگ :_ *"..settings.mute_audio.."*\n🔇_ممنوع کردن صدا :_ *"..settings.mute_voice.."*\n🔇_ممنوع کردن استیکر :_ *"..settings.mute_sticker.."*\n🔇_ممنوع کردن ارسال اطلاعات :_ *"..settings.mute_contact.."*\n🔇_ممنوع کردن فوروارد :_ *"..settings.mute_forward.."*\n🔇_ممنوع کردن ارسال مکان :_ *"..settings.mute_location.."*\n🔇_ممنوع کردن ارسال فایل :_ *"..settings.mute_document.."*\n🔇_ممنوع کردن اعلانات :_ *"..settings.mute_tgservice.."*\n*__________________*\n⏱_تاریخ انقضا :_ *"..expire.."*\n*____________________*\n*زبان ربات* : *فارسی*"
+ text = "🔰*تنظیمات گروه*🔰\n\n🔐_قفل ویرایش پیام :_ *"..settings.lock_edit.."*\n🛡_قفل لینک :_ *"..settings.lock_link.."*\n👊_قفل فحش :_ *"..settings.lock_fosh.."*\n👁_قفل سین** :_ *"..settings.lock_views.."*\n🔐_قفل جیمیل* :_ *"..settings.lock_gmail.."*\n#️⃣_قفل تگ :_ *"..settings.lock_tag.."*\n😐_قفل شکلک :_ *"..settings.lock_emoji.."*\n🇮🇷_قفل فارسی* :_ *"..settings.lock_arabic.."*\n🚔_قفل پیام مکرر :_ *"..settings.flood.."*\n🔐_قفل هرزنامه :_ *"..settings.lock_spam.."*\n🔐_قفل فراخوانی :_ *"..settings.lock_mention.."*\n🔐_قفل صفحات وب :_ *"..settings.lock_webpage.."*\n🔐_قفل فونت :_ *"..settings.lock_markdown.."*\n🤖_محافظت در برابر ربات ها :_ *"..settings.lock_bots.."*\n🔐_حداکثر پیام مکرر :_ *"..NUM_MSG_MAX.."*\n✋_پیام خوش آمد گویی :_ *"..settings.welcome.."*\n\n 🔊لیست ممنوعیت ها 🔊  \n\n🛌_ممنوع کردن همه : _ *"..settings.mute_all.."*\n🎭_ممنوع کردن تصاویر متحرک :_ *"..settings.mute_gif.."*\n✍️_ممنوع کردن  متن :_ *"..settings.mute_text.."*\n🔇_تبلیغات شیشه ای ممنوع :_ *"..settings.mute_inline.."*\n🕹_ممنوع کردن بازی  :_ *"..settings.mute_game.."*\n🏞_ممنوع کردن عکس :_ *"..settings.mute_photo.."*\n🎬_ممنوع کردن فیلم :_ *"..settings.mute_video.."*\n🎼_ممنوع کردن آهنگ :_ *"..settings.mute_audio.."*\n🗣_ممنوع کردن صدا :_ *"..settings.mute_voice.."*\n🔇_ممنوع کردن استیکر :_ *"..settings.mute_sticker.."*\n👷‍♀️_ممنوع کردن ارسال اطلاعات :_ *"..settings.mute_contact.."*\n🔇_ممنوع کردن فوروارد :_ *"..settings.mute_forward.."*\n🌏_ممنوع کردن ارسال مکان :_ *"..settings.mute_location.."*\n🔇_ممنوع کردن ارسال فایل :_ *"..settings.mute_document.."*\n🔇_ممنوع کردن اعلانات :_ *"..settings.mute_tgservice.."*\n*__________________*\n⏱_تاریخ انقضا :_ *"..expire.."*\n*____________________*\n*زبان ربات* : *فارسی*"
 end
 return text
 end
@@ -2600,6 +2664,9 @@ end
 if matches[2] == "جیمیل" then
 return lock_gmail(msg, data, target)
 end
+if matches[2] == "سین" then
+return lock_views(msg, data, target)
+end
 end
 
 if matches[1] == "باز کردن" and is_mod(msg) then
@@ -2642,6 +2709,9 @@ return unlock_emoji(msg, data, target)
 end
 if matches[2] == "جیمیل" then
 return unlock_gmail(msg, data, target)
+end
+if matches[2] == "سین" then
+return unlock_views(msg, data, target)
 end
 end
 if matches[1] == "ممنوعیت" and is_mod(msg) then
@@ -3414,7 +3484,6 @@ text5 = [[
 return text5 
 end
 
-
 --------------------- Welcome -----------------------
 	if matches[1] == "ولکام" and is_mod(msg) then
 		if matches[2] == "نصب" then
@@ -3530,6 +3599,7 @@ end
 return {
 patterns ={
 "^(مدیریت)$",
+"^[!/#](dragonbot)$",
 "^(انلاینی)$",
 "^(ممنوع)$",
 "^(قفل ها)$",
@@ -3587,4 +3657,4 @@ pre_process = pre_process
 -- http://permag.ir
 -- @permag_ir
 -- @permag_bots
--- @per
+-- @permag
