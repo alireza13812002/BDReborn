@@ -123,6 +123,11 @@ if settings.mute_gif then
 	else
 		lock_arabic = 'no'
 	end
+	if settings.lock_veiws then
+		lock_veiws = settings.lock_veiws
+	else
+		lock_veiws = 'no'
+	end
 	if settings.lock_gmail then
 		lock_gmail = settings.lock_gmail
 	else
@@ -347,6 +352,15 @@ kick_user(user, chat)
       end
    end
 end
+
+if views =="yes" and msg.views_ ~= 0 then
+if is_channel then
+ del_msg(chat, tonumber(msg.id))
+  elseif is_chat then
+kick_user(user, chat)
+   end
+end
+
 local link_msg = msg.text:match("[Tt][Ee][Ll][Ee][Gg][Rr][Aa][Mm].[Mm][Ee]/") or msg.text:match("[Tt][Ee][Ll][Ee][Gg][Rr][Aa][Mm].[Dd][Oo][Gg]/") or msg.text:match("[Tt].[Mm][Ee]/") or msg.text:match("[Tt][Ll][Gg][Rr][Mm].[Mm][Ee]/")
 if link_msg
 and lock_link == "yes" then
