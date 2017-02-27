@@ -10,7 +10,7 @@ local function run(msg, matches)
     if matches[1] == 'del' then
         if tostring(chat_id):match("^-100") then 
             if is_owner(msg) then
-                if tonumber(matches[2]) > 100 or tonumber(matches[2]) < 1 then
+                if tonumber(matches[2]) > 300 or tonumber(matches[2]) < 1 then
                     return  '🚫 *100*> _تعداد پیام های قابل حذف هر دفعه_ >*1* 🚫'
                 else
                     tdcli.getChatHistory(chat_id, msg_id, 0, tonumber(matches[2]), delmsg, nil)
