@@ -1,5 +1,27 @@
 --Begin Tools.lua :)
-local SUDO = 157059515 -- put Your ID here! <===
+local SUDO = 249424786 -- put Your ID here! <===
+function exi_files(cpath)
+    local files = {}
+    local pth = cpath
+    for k, v in pairs(scandir(pth)) do
+		table.insert(files, v)
+    end
+    return files
+end
+
+local function file_exi(name, cpath)
+    for k,v in pairs(exi_files(cpath)) do
+        if name == v then
+            return true
+        end
+    end
+    return false
+end
+local function run_bash(str)
+    local cmd = io.popen(str)
+    local result = cmd:read('*all')
+    return result
+end
 local function index_function(user_id)
   for k,v in pairs(_config.admins) do
     if user_id == v[1] then
@@ -33,6 +55,26 @@ end
 local function reload_plugins( ) 
   plugins = {} 
   load_plugins() 
+end
+
+local function exi_file()
+    local files = {}
+    local pth = tcpath..'/data/document'
+    for k, v in pairs(scandir(pth)) do
+        if (v:match('.lua$')) then
+            table.insert(files, v)
+        end
+    end
+    return files
+end
+
+local function pl_exi(name)
+    for k,v in pairs(exi_file()) do
+        if name == v then
+            return true
+        end
+    end
+    return false
 end
 
 local function sudolist(msg)
@@ -105,6 +147,8 @@ local function chat_list(msg)
     end
 	return message
 end
+
+
 
 local function action_by_reply(arg, data)
     local cmd = arg.cmd
@@ -416,6 +460,20 @@ local function run(msg, matches)
 local hash = "gp_lang:"..msg.to.id
 local lang = redis:get(hash)
  if tonumber(msg.from.id) == SUDO then
+if matches[1] == "clear cache" then
+     run_bash("rm -rf ~/.telegram-cli/data/sticker/*")
+     run_bash("rm -rf ~/.telegram-cli/data/photo/*")
+     run_bash("rm -rf ~/.telegram-cli/data/animation/*")
+     run_bash("rm -rf ~/.telegram-cli/data/video/*")
+     run_bash("rm -rf ~/.telegram-cli/data/audio/*")
+     run_bash("rm -rf ~/.telegram-cli/data/voice/*")
+     run_bash("rm -rf ~/.telegram-cli/data/temp/*")
+     run_bash("rm -rf ~/.telegram-cli/data/thumb/*")
+     run_bash("rm -rf ~/.telegram-cli/data/document/*")
+     run_bash("rm -rf ~/.telegram-cli/data/profile_photo/*")
+     run_bash("rm -rf ~/.telegram-cli/data/encrypted/*")
+    return "*All Cache Has Been Cleared*"
+   end
 if matches[1] == "visudo" then
 if not matches[2] and msg.reply_id then
     tdcli_function ({
@@ -459,6 +517,218 @@ tdcli_function ({
       end
    end
 end
+if is_sudo(msg) then
+			if matches[1] == 'rem' and matches[2] and is_admin(msg) then
+    local data = load_data(_config.moderation.data)
+			-- Group configuration removal
+			data[tostring(matches[2])] = nil
+			save_data(_config.moderation.data, data)
+			local groups = 'groups'
+			if not data[tostring(groups)] then
+				data[tostring(groups)] = nil
+				save_data(_config.moderation.data, data)
+			end
+			data[tostring(groups)][tostring(matches[2])] = nil
+			save_data(_config.moderation.data, data)
+	   tdcli.sendMessage(matches[2], 0, 1, "Group has been removed by admin command", 1, 'html')
+    return '_Group_ *'..matches[2]..'* _removed_'
+		end
+		if matches[1]:lower() == 'gid' then
+			tdcli.sendMessage(msg.to.id, msg.id_, 1, '`'..msg.to.id..'`', 1,'md')
+		end
+		 if matches[1] == 'leave' and is_admin(msg) then
+  tdcli.changeChatMemberStatus(msg.to.id, our_id, 'Left', dl_cb, nil)
+   end
+		if matches[1]:lower() == 'jointo' and matches[2] then
+		if string.match(matches[2], '^-%d+$') then
+			if lang then
+				tdcli.sendMessage(SUDO, msg.id_, 1, 'با موفقیت تورو به گروه '..matches[2]..' اضافه کردم.', 1, 'md')
+				tdcli.addChatMember(matches[2], SUDO, 0, dl_cb, nil)
+				tdcli.sendMessage(matches[2], 0, 1, '_سودو به گروه اضافه شد._', 1, 'md')
+			else
+				tdcli.sendMessage(SUDO, msg.id_, 1, '*I added you to this group:*\n\n`'..matches[2]..'`', 1, 'md')
+				tdcli.addChatMember(matches[2], SUDO, 0, dl_cb, nil)
+				tdcli.sendMessage(matches[2], 0, 1, 'Admin Joined!', 1, 'md')
+			end
+		end
+		end
+end
+	if matches[1]:lower() == 'savefile' and matches[2] and is_sudo(msg) then
+		if msg.reply_id  then
+			local folder = matches[2]
+            function get_filemsg(arg, data)
+				function get_fileinfo(arg,data)
+                    if data.content_.ID == 'MessageDocument' or data.content_.ID == 'MessagePhoto' or data.content_.ID == 'MessageSticker' or data.content_.ID == 'MessageAudio' or data.content_.ID == 'MessageVoice' or data.content_.ID == 'MessageVideo' or data.content_.ID == 'MessageAnimation' then
+                        if data.content_.ID == 'MessageDocument' then
+							local doc_id = data.content_.document_.document_.id_
+							local filename = data.content_.document_.file_name_
+                            local pathf = tcpath..'/data/document/'..filename
+							local cpath = tcpath..'/data/document'
+                            if file_exi(filename, cpath) then
+                                local pfile = folder
+                                os.rename(pathf, pfile)
+                                file_dl(doc_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>فایل</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>File</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+                            else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+                            end
+						end
+						if data.content_.ID == 'MessagePhoto' then
+							local photo_id = data.content_.photo_.sizes_[2].photo_.id_
+							local file = data.content_.photo_.id_
+                            local pathf = tcpath..'/data/photo/'..file..'_(1).jpg'
+							local cpath = tcpath..'/data/photo'
+                            if file_exi(file..'_(1).jpg', cpath) then
+                                local pfile = folder
+                                os.rename(pathf, pfile)
+                                file_dl(photo_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>عکس</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Photo</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+                            else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+                            end
+						end
+		                if data.content_.ID == 'MessageSticker' then
+							local stpath = data.content_.sticker_.sticker_.path_
+							local sticker_id = data.content_.sticker_.sticker_.id_
+							local secp = tostring(tcpath)..'/data/sticker/'
+							local ffile = string.gsub(stpath, '-', '')
+							local fsecp = string.gsub(secp, '-', '')
+							local name = string.gsub(ffile, fsecp, '')
+                            if file_exi(name, secp) then
+                                local pfile = folder
+                                os.rename(stpath, pfile)
+                                file_dl(sticker_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>استیکر</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Sticker</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+                            else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+                            end
+						end
+						if data.content_.ID == 'MessageAudio' then
+						local audio_id = data.content_.audio_.audio_.id_
+						local audio_name = data.content_.audio_.file_name_
+                        local pathf = tcpath..'/data/audio/'..audio_name
+						local cpath = tcpath..'/data/audio'
+							if file_exi(audio_name, cpath) then
+								local pfile = folder
+								os.rename(pathf, pfile)
+								file_dl(audio_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>صدای</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Audio</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+							else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+							end
+						end
+						if data.content_.ID == 'MessageVoice' then
+							local voice_id = data.content_.voice_.voice_.id_
+							local file = data.content_.voice_.voice_.path_
+							local secp = tostring(tcpath)..'/data/voice/'
+							local ffile = string.gsub(file, '-', '')
+							local fsecp = string.gsub(secp, '-', '')
+							local name = string.gsub(ffile, fsecp, '')
+                            if file_exi(name, secp) then
+                                local pfile = folder
+                                os.rename(file, pfile)
+                                file_dl(voice_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>صوت</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Voice</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+                            else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+                            end
+						end
+						if data.content_.ID == 'MessageVideo' then
+							local video_id = data.content_.video_.video_.id_
+							local file = data.content_.video_.video_.path_
+							local secp = tostring(tcpath)..'/data/video/'
+							local ffile = string.gsub(file, '-', '')
+							local fsecp = string.gsub(secp, '-', '')
+							local name = string.gsub(ffile, fsecp, '')
+                            if file_exi(name, secp) then
+                                local pfile = folder
+                                os.rename(file, pfile)
+                                file_dl(video_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>ویديو</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Video</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+                            else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+                            end
+						end
+						if data.content_.ID == 'MessageAnimation' then
+							local anim_id = data.content_.animation_.animation_.id_
+							local anim_name = data.content_.animation_.file_name_
+                            local pathf = tcpath..'/data/animation/'..anim_name
+							local cpath = tcpath..'/data/animation'
+                            if file_exi(anim_name, cpath) then
+                                local pfile = folder
+                                os.rename(pathf, pfile)
+                                file_dl(anim_id)
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>تصویر متحرک</b> <code>'..folder..'</code> <b>ذخیره شد.</b>', 1, 'html')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Gif</b> <code>'..folder..'</code> <b>Has Been Saved.</b>', 1, 'html')
+								end
+                            else
+								if lang then
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_فایل مورد نظر وجود ندارد. فایل را دوباره ارسال کنید._', 1, 'md')
+								else
+									tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+								end
+                            end
+						end
+                    else
+                        return
+                    end
+                end
+                tdcli_function ({ ID = 'GetMessage', chat_id_ = msg.chat_id_, message_id_ = data.id_ }, get_fileinfo, nil)
+            end
+	        tdcli_function ({ ID = 'GetMessage', chat_id_ = msg.chat_id_, message_id_ = msg.reply_to_message_id_ }, get_filemsg, nil)
+        end
+    end
+	
 if matches[1] == "adminprom" and is_sudo(msg) then
 if not matches[2] and msg.reply_id then
     tdcli_function ({
@@ -504,7 +774,7 @@ tdcli_function ({
 
 if matches[1] == 'creategroup' and is_admin(msg) then
 local text = matches[2]
-tdcli.createNewGroupChat({[0] = msg.from.id}, text)
+tdcli.createNewGroupChat({[0] = msg.from.id}, text, dl_cb, nil)
   if not lang then
 return '_Group Has Been Created!_'
   else
@@ -514,7 +784,7 @@ end
 
 if matches[1] == 'createsuper' and is_admin(msg) then
 local text = matches[2]
-tdcli.createNewChannelChat({[0] = msg.sender_user_id_}, text)
+tdcli.createNewChannelChat(text, 1, '', dl_cb, nil)
    if not lang then 
 return '_SuperGroup Has Been Created!_'
   else
@@ -524,7 +794,7 @@ end
 
 if matches[1] == 'tosuper' and is_admin(msg) then
 local id = msg.to.id
-tdcli.migrateGroupChatToChannelChat(id)
+tdcli.migrateGroupChatToChannelChat(id, dl_cb, nil)
   if not lang then
 return '_Group Has Been Changed To SuperGroup!_'
   else
@@ -587,8 +857,9 @@ return '_تیک دوم >_ *خاموش*'
    end
 end
 
-if matches[1] == 'bc' and is_admin(msg) then		
-tdcli.sendMessage(matches[2], 0, 0, matches[3], 0)	end	
+if matches[1] == 'bc' and is_admin(msg) then
+		local text = matches[2]
+tdcli.sendMessage(matches[3], 0, 0, text, 0)	end
 
 if matches[1] == 'broadcast' and is_sudo(msg) then		
 local data = load_data(_config.moderation.data)		
@@ -597,6 +868,51 @@ for k,v in pairs(data) do
 tdcli.sendMessage(k, 0, 0, bc, 0)			
 end	
 end
+
+  if is_sudo(msg) then
+	if matches[1]:lower() == "sendfile" and matches[2] and 
+matches[3] then
+		local send_file = 
+"./"..matches[2].."/"..matches[3]
+		tdcli.sendDocument(msg.chat_id_, msg.id_,0, 
+1, nil, send_file, '@BeyondTeam', dl_cb, nil)
+	end
+	if matches[1]:lower() == "sendplug" and matches[2] then
+	    local plug = "./plugins/"..matches[2]..".lua"
+		tdcli.sendDocument(msg.chat_id_, msg.id_,0, 
+1, nil, plug, '@BeyondTeam', dl_cb, nil)
+    end
+  end
+
+    if matches[1]:lower() == 'save' and matches[2] and is_sudo(msg) then
+        if tonumber(msg.reply_to_message_id_) ~= 0  then
+            function get_filemsg(arg, data)
+                function get_fileinfo(arg,data)
+                    if data.content_.ID == 'MessageDocument' then
+                        fileid = data.content_.document_.document_.id_
+                        filename = data.content_.document_.file_name_
+                        if (filename:lower():match('.lua$')) then
+                            local pathf = tcpath..'/data/document/'..filename
+                            if pl_exi(filename) then
+                                local pfile = 'plugins/'..matches[2]..'.lua'
+                                os.rename(pathf, pfile)
+                                tdcli.downloadFile(fileid , dl_cb, nil)
+                                tdcli.sendMessage(msg.to.id, msg.id_,1, '<b>Plugin</b> <code>'..matches[2]..'</code> <b>Has Been Saved.</b>', 1, 'html')
+                            else
+                                tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file does not exist. Send file again._', 1, 'md')
+                            end
+                        else
+                            tdcli.sendMessage(msg.to.id, msg.id_, 1, '_This file is not Plugin File._', 1, 'md')
+                        end
+                    else
+                        return
+                    end
+                end
+                tdcli_function ({ ID = 'GetMessage', chat_id_ = msg.chat_id_, message_id_ = data.id_ }, get_fileinfo, nil)
+            end
+	        tdcli_function ({ ID = 'GetMessage', chat_id_ = msg.chat_id_, message_id_ = msg.reply_to_message_id_ }, get_filemsg, nil)
+        end
+    end
 
 if matches[1] == 'sudolist' and is_sudo(msg) then
 return sudolist(msg)
@@ -652,9 +968,205 @@ local hash = 'auto_leave_bot'
          end
       end
    end
+
+
+if matches[1] == "helptools" and is_mod(msg) then
+if not lang then
+text = [[
+
+_Sudoer And Admins Beyond Bot Help :_
+
+*!visudo* `[username|id|reply]`
+_Add Sudo_
+
+*!desudo* `[username|id|reply]`
+_Demote Sudo_
+
+*!sudolist *
+_Sudo(s) list_
+
+*!adminprom* `[username|id|reply]`
+_Add admin for bot_
+
+*!admindem* `[username|id|reply]`
+_Demote bot admin_
+
+*!adminlist *
+_Admin(s) list_
+
+*!leave *
+_Leave current group_
+
+*!autoleave* `[disable/enable]`
+_Automatically leaves group_
+
+*!creategroup* `[text]`
+_Create normal group_
+
+*!createsuper* `[text]`
+_Create supergroup_
+
+*!tosuper *
+_Convert to supergroup_
+
+*!chats*
+_List of added groups_
+
+*!join* `[id]`
+_Adds you to the group_
+
+*!rem* `[id]`
+_Remove a group from Database_
+
+*!import* `[link]`
+_Bot joins via link_
+
+*!setbotname* `[text]`
+_Change bot's name_
+
+*!setbotusername* `[text]`
+_Change bot's username_
+
+*!delbotusername *
+_Delete bot's username_
+
+*!markread* `[off/on]`
+_Second mark_
+
+*!broadcast* `[text]`
+_Send message to all added groups_
+
+*!bc* `[text] [gpid]`
+_Send message to a specific group_
+
+*!sendfile* `[folder] [file]`
+_Send file from folder_
+
+*!sendplug* `[plug]`
+_Send plugin_
+
+*!save* `[plugin name] [reply]`
+_Save plugin by reply_
+
+*!savefile* `[address/filename] [reply]`
+_Save File by reply to specific folder_
+
+*!clear cache*
+_Clear All Cache Of .telegram-cli/data_
+
+*!leave* `[GroupID]`
+_Leave Bot From Specific Group_
+
+_You can use_ *[!/#]* _at the beginning of commands._
+
+`This help is only for sudoers/bot admins.`
+ 
+*This means only the sudoers and its bot admins can use mentioned commands.*
+
+*Good luck ;)*]]
+tdcli.sendMessage(msg.chat_id_, 0, 1, text, 1, 'md')
+else
+
+text = [[
+_راهنمای ادمین و سودو های ربات بیوند:_
+
+*!visudo* `[username|id|reply]`
+_اضافه کردن سودو_
+
+*!desudo* `[username|id|reply]`
+_حذف کردن سودو_
+
+*!sudolist* 
+_لیست سودو‌های ربات_
+
+*!adminprom* `[username|id|reply]`
+_اضافه کردن ادمین به ربات_
+
+*!admindem* `[username|id|reply]`
+_حذف فرد از ادمینی ربات_
+
+*!adminlist* 
+_لیست ادمین ها_
+
+*!leave* 
+_خارج شدن ربات از گروه_
+
+*!autoleave* `[disable/enable]`
+_خروج خودکار_
+
+*!creategroup* `[text]`
+_ساخت گروه ریلم_
+
+*!createsuper* `[text]`
+_ساخت سوپر گروه_
+
+*!tosuper* 
+_تبدیل به سوپر گروه_
+
+*!chats*
+_لیست گروه های مدیریتی ربات_
+
+*!join* `[id]`
+_جوین شدن توسط ربات_
+
+*!rem* `[id]`
+_حذف گروه ازطریق پنل مدیریتی_
+
+*!import* `[link]`
+_جوین شدن ربات توسط لینک_
+
+*!setbotname* `[text]`
+_تغییر اسم ربات_
+
+*!setbotusername* `[text]`
+_تغییر یوزرنیم ربات_
+
+*!delbotusername* 
+_پاک کردن یوزرنیم ربات_
+
+*!markread* `[off/on]`
+_تیک دوم_
+
+*!broadcast* `[text]`
+_فرستادن پیام به تمام گروه های مدیریتی ربات_
+
+*!bc* `[text]` `[gpid]`
+_ارسال پیام مورد نظر به گروه خاص_
+
+*!sendfile* `[cd]` `[file]`
+_ارسال فایل موردنظر از پوشه خاص_
+
+*!sendplug* `[plug]`
+_ارسال پلاگ مورد نظر_
+
+*!save* `[plugin name] [reply]`
+_ذخیره کردن پلاگین_
+
+*!savefile* `[address/filename] [reply]`
+_ذخیره کردن فایل در پوشه مورد نظر_
+
+*!clear cache*
+_پاک کردن کش مسیر .telegram-cli/data_
+
+*!leave* `[GroupID]`
+_خارج شدن ربات از گروه مورد نظر_
+
+*شما میتوانید از [!/#] در اول دستورات برای اجرای آنها بهره بگیرید*
+
+_این راهنما فقط برای سودو ها/ادمین های ربات میباشد!_
+
+`این به این معناست که فقط سودو ها/ادمین های ربات میتوانند از دستورات بالا استفاده کنند!`
+
+*موفق باشید ;)*]]
+tdcli.sendMessage(msg.chat_id_, 0, 1, text, 1, 'md')
 end
+
+end
+end
+
 return { 
-patterns = { 
+patterns = {                                                                   
+"^[!/#](helptools)$", 
 "^[!/#](visudo)$", 
 "^[!/#](desudo)$",
 "^[!/#](sudolist)$",
@@ -672,6 +1184,7 @@ patterns = {
 "^[!/#](createsuper) (.*)$",
 "^[!/#](tosuper)$",
 "^[!/#](chats)$",
+"^[!/#](clear cache)$",
 "^[!/#](join) (.*)$",
 "^[!/#](rem) (.*)$",
 "^[!/#](import) (.*)$",
@@ -679,9 +1192,19 @@ patterns = {
 "^[!/#](setbotusername) (.*)$",
 "^[!/#](delbotusername) (.*)$",
 "^[!/#](markread) (.*)$",
-"^[!/#](bc) (%d+) (.*)$",
+"^[!/#](bc) +(.*) (.*)$",
 "^[!/#](broadcast) (.*)$",
+"^[!/#](sendfile) (.*) (.*)$",
+"^[!/#](save) (.*)$",
+"^[!/#](sendplug) (.*)$",
+"^[!/#](savefile) (.*)$",
+"^[!/#]([Aa]dd)$",
+"^[!/#]([Gg]id)$",
+"^[!/#]([Jj]ointo) (.*)$",
+"^[!/#]([Ll]eave) (.*)$",
+"^[!/#]([Pp]lan) ([123]) (.*)$",
+"^[!/#]([Rr]em)$",
 }, 
-run = run 
+run = run, pre_process = pre_process
 }
 -- #End By @BeyondTeam
