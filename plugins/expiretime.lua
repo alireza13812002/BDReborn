@@ -34,7 +34,7 @@ local function pre_process(msg)
 if add_cmd and is_sudo(msg) then
 redis:set("charged:"..msg.chat_id_,true)
    end
- local gpid_cmd = msg.content_.text_:match("/gid") or msg.content_.text_:match("!gid") or msg.content_.text_:match("#gid")
+ local gpid_cmd = msg.content_.text_:match("gid") or msg.content_.text_:match("gid") or msg.content_.text_:match("gid")
 if gpid_cmd and is_sudo(msg) then
 	   tdcli.sendMessage(msg.chat_id_, msg.id_, 1, '*'..msg.chat_id_..'*', 1,'md')
    end
@@ -42,9 +42,9 @@ end
 if gp_type(msg.chat_id_) ~= 'pv' then
 
 if not redis:get("charged:"..msg.chat_id_) and not is_sudo(msg) then
-local sudo = 250486245
-local t1 = "شارژ این گروه به اتمام رسید \n\nID : "..msg.chat_id_..'\n\nدر صورتی که میخواهید ربات این گروه را ترک کند از دستور زیر استفاده کنید\n\n/leave '..msg.chat_id_..'\nبرای جوین دادن توی این گروه میتونی از دستور زیر استفاده کنی:\n/join91752'..msg.chat_id_..'\n_________________\nدر صورتی که میخواهید گروه رو دوباره شارژ کنید میتوانید از کد های زیر استفاده کنید...\n\n<code>برای شارژ 1 ماهه:</code>\n/plan1'..msg.chat_id_..'\n\n<code>برای شارژ 3 ماهه:</code>\n/plan2'..msg.chat_id_..'\n\n<code>برای شارژ نامحدود:</code>\n/plan3'..msg.chat_id_
-local t2 = "شارژ این گروه به اتمام رسید و ربات از گروه خارج میشود...\nبرای تمدید کردن ربات به @Tele_Sudo پیام دهید.\nدر صورت ریپورت بودن میتوانید با ربات زیر با ما در ارتباط باشید:\n @LuaError"
+local sudo = 250486245,286623819
+local t1 = "اسم گپ *"..msg.to.title.."*شارژ این گروه به اتمام رسید در گروه\n\nID : "..msg.chat_id_..'\n\nدر صورتی که میخواهید ربات این گروه را ترک کند از دستور زیر استفاده کنید\n\n/leave '..msg.chat_id_..'\nبرای جوین دادن توی این گروه میتونی از دستور زیر استفاده کنی:\n/join91752'..msg.chat_id_..'\n_________________\nدر صورتی که میخواهید گروه رو دوباره شارژ کنید میتوانید از کد های زیر استفاده کنید...\n\n<code>برای شارژ 1 ماهه:</code>\n/plan1'..msg.chat_id_..'\n\n<code>برای شارژ 3 ماهه:</code>\n/plan2'..msg.chat_id_..'\n\n<code>برای شارژ نامحدود:</code>\n/plan3'..msg.chat_id_
+local t2 = "شارژ این گروه به اتمام رسید و ربات از گروه خارج میشود...\nبرای تمدید کردن ربات به @sajjadkingwolfs پیام دهید.\nدر صورت ریپورت بودن میتوانید با ربات زیر با ما در ارتباط باشید:\n @antiespammmm_bot"
 tdcli.sendMessage(sudo, 0, 1, t1, 1, 'html')
 tdcli.sendMessage(msg.chat_id_, 0, 1, t2, 1, 'html')
        modrem(msg)
@@ -53,7 +53,7 @@ tdcli.sendMessage(msg.chat_id_, 0, 1, t2, 1, 'html')
 end
 local function run(msg, matches)
 if gp_type(msg.chat_id_) == 'channel' or gp_type(msg.chat_id_) == 'chat' then
-if matches[1] == "charge" and matches[2] and not matches[3] and is_sudo(msg) then
+if matches[1] == "expire" and matches[2] and not matches[3] and is_sudo(msg) then
 local time = matches[2] * day
 redis:setex("charged:"..msg.chat_id_,time,true)
  tdcli.sendMessage(msg.chat_id_, msg.id_, 1, 'ربات با موفقیت تنظیم شد\nمدت فعال بودن ربات در گروه به '..matches[2]..' روز دیگر تنظیم شد...', 1, 'html')
@@ -103,18 +103,18 @@ return tdcli.sendMessage(msg.chat_id_, msg.id_, 1, 'ربات با موفقیت �
 	   tdcli.sendMessage(matches[3], 0, 1, "ربات بدون محدودیت فعال شد ! ( نامحدود )", 1, 'html')
   end
    if matches[1]:lower() == 'join' and matches[2] == '91752' and matches[3] then
-   local sudo = 250486245 --ID SUDO
+   local sudo = 250486245,286623819 --ID SUDO
 	   tdcli.sendMessage(sudo, msg.id_, 1, 'با موفقیت تورو به گروه '..matches[3]..' اضافه کردم.', 1, 'html')
 	   tdcli.sendMessage(matches[3], 0, 1, "Admin Joined!🌚", 1, 'html')
     tdcli.addChatMember(matches[3], sudo, 0, dl_cb, nil)
   end
-    if matches[1] == "charge" and matches[2] and matches[3] then
+    if matches[1] == "expire" and matches[2] and matches[3] then
     local time = matches[3] * day
         redis:setex("charged:"..matches[2],time,true)
 		local gp = matches[2]
 		tdcli.sendMessage(msg.chat_id_, msg.id_, 1, 'ربات با موفقیت تنظیم شد\nمدت فعال بودن ربات در گروه به '..matches[3]..' روز دیگر تنظیم شد...', 1, 'html')
-		tdcli.sendMessage(gp, 0, 1, "ربات توسط ادمین به مدت <code>"..matches[3].."</code> روز شارژ شد\nبرای فعال شدن ربات در گروه از دستور /check استفاده کنید...", 1, 'html')
-		tdcli.sendMessage(gp, 0, 1, "ربات توسط ادمین به مدت <code>"..matches[3].."</code> روز شارژ شد\nبرای فعال شدن ربات در گروه از دستور /check استفاده کنید...",1 , 'html')
+		tdcli.sendMessage(gp, 0, 1, "ربات توسط ادمین به مدت <code>"..matches[3].."</code> روز شارژ شد\nبرای فعال شدن ربات در گروه از دستور /expire استفاده کنید...", 1, 'html')
+		tdcli.sendMessage(gp, 0, 1, "ربات توسط ادمین به مدت <code>"..matches[3].."</code> روز شارژ شد\nبرای فعال شدن ربات در گروه از دستور /expire استفاده کنید...",1 , 'html')
 	end
   else 
   return  tdcli.sendMessage(msg.chat_id_, msg.id_,'<code>فقط سازنده ربات میتواند از دستورات مدیریتی گروه های دیگر استفاده کند!</code>', 1, 'html')
@@ -129,9 +129,9 @@ end
 return {
 patterns = {
 "^[!/#]([Ee]xpire)$",
-"^[!/#]([Ss]etxpire) (.*)$",
-"^[!/#]([Cc]harge) (.*) (%d+)$",
-"^[!/#]([Cc]harge) (%d+)$",
+"^[!/#](setexpire) (.*)$",
+"^[!/#]([Ee]xpire) (.*) (%d+)$",
+"^[!/#]([Ee]xpire) (%d+)$",
 "^[!/#]([Jj]oin)(91752)(.*)$",
 "^[!/#]([Ll]eave) (.*)$",
 "^[!/#]([Pp]lan)([123])(.*)$",
