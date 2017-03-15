@@ -3509,7 +3509,7 @@ end
 
 --------------------- Welcome -----------------------
 	if matches[1] == "welcome" or matches[1] == "ولکام" and is_mod(msg) then
-		if matches[2] == "enable" or matches[1] == "نصب" then
+		if matches[2] == "enable" or matches[2] == "نصب" then
 			welcome = data[tostring(chat)]['settings']['welcome']
 			if welcome == "yes" then
        if not lang then
@@ -3528,7 +3528,7 @@ end
 			end
 		end
 		
-		if matches[2] == "disable"  or matches[1] == "حذف" then
+		if matches[2] == "disable"  or matches[2] == "حذف" then
 			welcome = data[tostring(chat)]['settings']['welcome']
 			if welcome == "no" then
       if not lang then
